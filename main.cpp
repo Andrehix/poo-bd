@@ -1,57 +1,215 @@
 #include <iostream>
-#include <array>
+#include <string>
+#include <vector>
 
-#include <Helper.h>
+class produs {
+    double pret;
+    std::string nume;
+    int cantitate, id_raion;
+
+public:
+    [[nodiscard]] double getPret() const {
+        return pret;
+    }
+
+    [[nodiscard]] int getCant() const {
+        return cantitate;
+    }
+    explicit produs(const double pret_ = 0, std::string nume_ = "NULL",
+                    const int cantitate_ = 0, const int id_raion_ = 0)
+        : pret(pret_), nume(std::move(nume_)), cantitate(cantitate_), id_raion(id_raion_) {std::cout<<nume<<" s-a initializat cu succes!\n";}
+    produs(const produs &p) = default;
+    //produs(const produs &p) : pret(p.pret), nume(p.nume),  cantitate(p.cantitate), id_raion(p.id_raion) {}
+
+    ~produs() = default;
+
+    produs& operator=(const produs& other) {
+        if (this != &other) {
+            pret = other.pret;
+            nume = other.nume;
+            cantitate = other.cantitate;
+            id_raion = other.id_raion;
+        }
+        return *this;
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const produs& p) {
+        out << "Produs: " << p.nume << " | Pret: " << p.pret
+            << " | Cantitate: " << p.cantitate << " | Raion: " << p.id_raion << std::endl;
+        return out;
+    }
+};
+
+class raion {
+    int id;
+    std::string nume;
+    std::vector<produs> produse;
+public:
+    [[nodiscard]] int getId() const {
+        return id;
+    }
+    explicit raion(const int id_ = 0, std::string nume_ = "NULL", const std::vector<produs>& produse_ = {}) : id(id_), nume(std::move(nume_)), produse(produse_) {
+        std::cout<<"Raionul pentru "<<nume<<" s-a initializat cu succes!\n";
+    }
+
+    void afiseazaProduse() const {
+        std::cout << "Raionul " << nume << " are " << produse.size() << " produse:\n";
+        for (const produs& p : produse) {
+            std::cout << p;
+        }
+    }
+
+    void afiseazaCant() const {
+        int c=0;
+        for (const produs& p : produse) {
+            c+=p.getCant();
+        }
+        std::cout<<"Pe raionul "<<nume<<" sunt, in total, "<<c<<" bucati.\n";
+    }
+
+    void afiseazaPret() const {
+        double pret=0;
+        for (const produs& p : produse) {
+            pret+=p.getPret();
+        }
+        std::cout<<"Pe raionul "<<nume<<" sunt produse in valoare de "<<pret<<" lei.\n";
+    }
+
+    void afiseazaProduseCant(int c) const {
+        if (c >= 0) {
+            std::cout<< "Produse in raionul "<<nume<< " care au cantitatea mai mare de "<<c<<" bucati:\n";
+            for (const produs& p : produse) {
+                if (p.getCant()>=c) std::cout<<p;
+            }
+        }
+        else {
+            c=-c;
+            std::cout<< "Produse in raionul "<<nume<< " care au cantitatea mai mica de "<<c<<" bucati:\n";
+            for (const produs& p : produse) {
+                if (p.getCant()<=c) std::cout<<p;
+            }
+        }
+    }
+
+    void afiseazaProdusePret(int c) const{
+        if (c > 0) {
+            std::cout<< "Produse in raionul "<<nume<< " care au pretul mai mare de "<<c<<" lei:\n";
+            for (const produs& p : produse) {
+                if (p.getPret()>=c) std::cout<<p;
+            }
+        }
+        else {
+            c=-c;
+            std::cout<< "Produse in raionul "<<nume<< " care au pretul mai mic de "<<c<<" lei:\n";
+            for (const produs& p : produse) {
+                if (p.getPret()<=c) std::cout<<p;
+            }
+        }
+    }
+
+    raion(const raion& other) = default;
+
+    ~raion() = default;
+
+    raion& operator=(const raion& other) {
+        if (this != &other) {
+            id = other.id;
+            nume = other.nume;
+            produse = other.produse;
+        }
+        return *this;
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const raion& r) {
+        out << "Raion: " << r.nume << ", ID: " << r.id << std::endl;
+        for (const produs& p : r.produse) {
+            out << p;
+        }
+        return out;
+    }
+};
+
+class raioane {
+    std::vector<raion> raioanele;
+public:
+    explicit raioane(const std::vector<raion>& raioanele_ = {}) : raioanele(raioanele_) {}
+    ~raioane() = default;
+    [[nodiscard]] const std::vector<raion>& getR() const {
+        return raioanele;
+    }
+};
 
 int main() {
-    std::cout << "Hello, world!\n";
-    std::array<int, 100> v{};
-    int nr;
-    std::cout << "Introduceți nr: ";
-    /////////////////////////////////////////////////////////////////////////
-    /// Observație: dacă aveți nevoie să citiți date de intrare de la tastatură,
-    /// dați exemple de date de intrare folosind fișierul tastatura.txt
-    /// Trebuie să aveți în fișierul tastatura.txt suficiente date de intrare
-    /// (în formatul impus de voi) astfel încât execuția programului să se încheie.
-    /// De asemenea, trebuie să adăugați în acest fișier date de intrare
-    /// pentru cât mai multe ramuri de execuție.
-    /// Dorim să facem acest lucru pentru a automatiza testarea codului, fără să
-    /// mai pierdem timp de fiecare dată să introducem de la zero aceleași date de intrare.
-    ///
-    /// Pe GitHub Actions (bife), fișierul tastatura.txt este folosit
-    /// pentru a simula date introduse de la tastatură.
-    /// Bifele verifică dacă programul are erori de compilare, erori de memorie și memory leaks.
-    ///
-    /// Dacă nu puneți în tastatura.txt suficiente date de intrare, îmi rezerv dreptul să vă
-    /// testez codul cu ce date de intrare am chef și să nu pun notă dacă găsesc vreun bug.
-    /// Impun această cerință ca să învățați să faceți un demo și să arătați părțile din
-    /// program care merg (și să le evitați pe cele care nu merg).
-    ///
-    /////////////////////////////////////////////////////////////////////////
-    std::cin >> nr;
-    /////////////////////////////////////////////////////////////////////////
-    for(int i = 0; i < nr; ++i) {
-        std::cout << "v[" << i << "] = ";
-        std::cin >> v[i];
+    produs p1(14.5, "Branza Hochland", 5, 3);
+    produs p2(10.7, "Coca-Cola Zero", 20, 2), p3(21.5, "Foietaje cu feta", 10, 1), p4(15, "Pastrav", 15, 1);
+    raion r1(1, "congelate", std::vector<produs>{p3,p4}),r2;
+    /*r2.afiseazaProduse();
+    r1.afiseazaProdusePret(-20);
+    r1.afiseazaProduseCant(-12);
+    r1.afiseazaPret();
+    r1.afiseazaCant();*/
+    raioane R({r1,r2});
+    int n=1,i=1,g=0;
+    while (n!=0) {
+        std::cout<<"Bun venit in baza de date Mini Image!\n"<<"Selecteaza una dintre urmatoarele optiuni:\n"<<"1. Afisare produse.\n"<<"0. Inchidere program.";
+        std::cin>>n;
+        if (n==1)
+            while (n!=0) {
+                std::cout<<"Afisare produse. Selectati optiunea dorita:\n"<<"1. Afisare produse de pe un raion cu cantitatea mai mare/mai mica decat un numar.\n"
+                <<"2. Afisare produse de pe un raion cu pretul mai mic/mai mare decat un numar.\n"<<"3. Afisare cantitatea totala de pe un raion.\n"
+                <<"4. Afisare pret total de pe un raion.\n"<<"5. Afisarea tuturor produselor de pe un raion.\n"<<"0. Revenire la meniul principal.\n";
+                std::cin>>n;
+                if (n==1) {
+                    std::cout<<"Inserati id-ul raionului:";
+                    std::cin>>i;
+                    for (const raion& a : R.getR() )
+                        if (a.getId() == i) {
+                            std::cout<<"Inserati numarul:";
+                            std::cin>>i;
+                            a.afiseazaProduseCant(i);
+                        }
+                }
+                if (n==2) {
+                    std::cout<<"Inserati id-ul raionului:";
+                    std::cin>>i;
+                    for (const raion& a : R.getR() )
+                        if (a.getId() == i) {
+                            std::cout<<"Inserati numarul:";
+                            std::cin>>i;
+                            a.afiseazaProdusePret(i);
+                        }
+                }
+                if (n==3) {
+                    std::cout<<"Inserati id-ul raionului:";
+                    std::cin>>i;
+                    for (const raion& a : R.getR() )
+                        if (a.getId() == i) {
+                            a.afiseazaCant();
+                        }
+                }
+                if (n==4) {
+                    std::cout<<"Inserati id-ul raionului:";
+                    std::cin>>i;
+                    for ( const raion& a : R.getR() )
+                        if (a.getId() == i) {
+                            a.afiseazaPret();
+                        }
+                }
+                if (n==5) {
+                    std::cout<<"Inserati id-ul raionului:";
+                    std::cin>>i;
+                    for (const raion& a : R.getR() )
+                        if (a.getId() == i) {
+                            a.afiseazaProduse();
+                        }
+                }
+                if (n==0) {g++;}
+            }
+        if (g==1) {
+            n=1;
+            g--;
+        }
     }
-    std::cout << "\n\n";
-    std::cout << "Am citit de la tastatură " << nr << " elemente:\n";
-    for(int i = 0; i < nr; ++i) {
-        std::cout << "- " << v[i] << "\n";
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    /// Pentru date citite din fișier, NU folosiți tastatura.txt. Creați-vă voi
-    /// alt fișier propriu cu ce alt nume doriți.
-    /// Exemplu:
-    /// std::ifstream fis("date.txt");
-    /// for(int i = 0; i < nr2; ++i)
-    ///     fis >> v2[i];
-    ///
-    ///////////////////////////////////////////////////////////////////////////
-    ///                Exemplu de utilizare cod generat                     ///
-    ///////////////////////////////////////////////////////////////////////////
-    Helper helper;
-    helper.help();
-    ///////////////////////////////////////////////////////////////////////////
+    std::cout<<"Multumim!";
     return 0;
 }
